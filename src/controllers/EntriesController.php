@@ -50,10 +50,10 @@ class EntriesController extends Controller
             throw new \Exception('Invalid entry draft ID: '.$draftId);
         }
 
-        $entry = Craft::$app->entries->getEntryById($draft->sourceId, $siteId);
+        $entry = Craft::$app->entries->getEntryById($draft->getCanonicalId(), $siteId);
 
         if ($entry === null) {
-            throw new ElementNotFoundException("No element exists with the ID '{$draft->sourceId}'");
+            throw new ElementNotFoundException("No element exists with the ID '{$draft->getCanonicalId()}'");
         }
 
         if ($draft->enabled) {
