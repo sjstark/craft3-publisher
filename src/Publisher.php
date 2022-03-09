@@ -73,7 +73,11 @@ class Publisher extends Plugin
                     $entry = $context['entry'];
                     $isNew = $entry->id === null;
 
-                    if ($isNew) {
+                    if ($entry->getIsDraft()) {
+                        $entry = $entry->getCanonical();
+                    }
+
+                    if ($isNew || !$entry) {
                         return null;
                     }
 

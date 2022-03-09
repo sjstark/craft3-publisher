@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed a deprecation error for craft 3.7
+
+### Changed
+- Show the side panel when editing drafts too (previously it worked only on entry edit view)
+- The plugin now requires craft 3.7 or later
+
 ## 2.0.6 - 2021-05-12
 ### Fixed
 - Fixed a bug where drafts which didn't exist on the primary site couldn't be published
@@ -7,6 +15,7 @@
 ## 2.0.5 - 2020-05-18
 ### Fixed
 - Fixed installation migration
+
 ### Changed
 - Changed UI to resemble new CP UI
 
