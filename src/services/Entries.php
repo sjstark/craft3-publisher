@@ -2,8 +2,8 @@
 /**
  * @link      https://www.goldinteractive.ch
  * @copyright Copyright (c) 2018 Gold Interactive
- * @author Christian Ruhstaller
- * @license MIT
+ * @author    Christian Ruhstaller
+ * @license   MIT
  */
 
 namespace goldinteractive\publisher\services;
@@ -57,7 +57,7 @@ class Entries extends Component
             $entry = $entryPublish->getEntry();
             $draft = $entryPublish->getDraft();
 
-            Craft::$app->elements->deleteElementById($entryPublish->id);
+            Craft::$app->elements->deleteElement($entryPublish, true);
 
             if ($draft !== null) {
                 Craft::$app->getDrafts()->applyDraft($draft);
@@ -65,7 +65,7 @@ class Entries extends Component
                 try {
                     Craft::$app->elements->saveElement($entry);
                 } catch (\Throwable $e) {
-                    Craft::error('could not save element while publishing: '.$e->getMessage(), 'publisher');
+                    Craft::error('could not save element while publishing: ' . $e->getMessage(), 'publisher');
                 }
             }
         }
@@ -165,7 +165,7 @@ class Entries extends Component
      */
     public function deleteEntryPublish(int $id): bool
     {
-        return Craft::$app->elements->deleteElementById($id);
+        return Craft::$app->elements->deleteElementById($id, null, null, true);
     }
 
     /**
@@ -180,24 +180,27 @@ class Entries extends Component
      */
     public function onSaveEntry(Entry $entry): bool
     {
+        $postDate = $entry->postDate;
+        $expiryDate = $entry->expiryDate;
+
         $model = new EntryPublish();
         $model->sourceId = $entry->id;
         $model->sourceSiteId = $entry->siteId;
 
-        if ($entry->postDate > $this->now) {
-            $model->publishAt = $entry->postDate;
+        if ($postDate > $this->now) {
+            $model->publishAt = $postDate;
             $model->expire = false;
 
-            $this->clearExistingPublishings($entry);
+            $this->clearExistingPublishings($model);
 
             $this->saveEntryPublish($model);
         }
 
-        if ($entry->expiryDate !== null && $entry->expiryDate > $this->now) {
-            $model->publishAt = $entry->expiryDate;
+        if ($expiryDate !== null && $expiryDate > $this->now) {
+            $model->publishAt = $expiryDate;
             $model->expire = true;
 
-            $this->clearExistingUnpublishings($entry);
+            $this->clearExistingUnpublishings($model);
 
             $this->saveEntryPublish($model);
         }
@@ -208,17 +211,21 @@ class Entries extends Component
     /**
      * Clears all the existing publishing EntryPublishes for the entry.
      *
-     * @param Entry $entry
+     * @param EntryPublish $model
      * @throws \Throwable
      */
-    protected function clearExistingPublishings(Entry $entry): void
+    protected function clearExistingPublishings(EntryPublish $model): void
     {
-        $elements = EntryPublish::find()->sourceId($entry->id)->expire(false)->all();
+        if (!$model->sourceId) {
+            return;
+        }
+
+        $elements = EntryPublish::find()->sourceId($model->sourceId)->expire(false)->all();
 
         /** @var EntryPublish $element */
         foreach ($elements as $element) {
             if ($element->publishDraftId === null) {
-                Craft::$app->elements->deleteElementById($element->id);
+                Craft::$app->elements->deleteElement($element, true);
             }
         }
     }
@@ -226,17 +233,22 @@ class Entries extends Component
     /**
      * Clears all the existing unpublishing EntryPublishes for the entry.
      *
-     * @param Entry $entry
+     * @param EntryPublish $model
      * @throws \Throwable
      */
-    protected function clearExistingUnpublishings(Entry $entry): void
+    protected function clearExistingUnpublishings(EntryPublish $model): void
     {
-        $elements = EntryPublish::find()->sourceId($entry->id)->expire(true)->all();
+        if (!$model->sourceId) {
+            return;
+        }
+
+        $elements = EntryPublish::find()->sourceId($model->sourceId)->expire(true)->all();
 
         /** @var EntryPublish $element */
         foreach ($elements as $element) {
+            # this if is not really needed, as drafts can't be unpublished
             if ($element->publishDraftId === null) {
-                Craft::$app->elements->deleteElementById($element->id);
+                Craft::$app->elements->deleteElement($element, true);
             }
         }
     }

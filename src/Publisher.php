@@ -61,7 +61,9 @@ class Publisher extends Plugin
                 Elements::EVENT_AFTER_SAVE_ELEMENT,
                 function (ElementEvent $event) {
                     if ($event->element instanceof Entry) {
-                        return self::getInstance()->entries->onSaveEntry($event->element);
+                        if ($event->element->isCanonical) {
+                            return self::getInstance()->entries->onSaveEntry($event->element);
+                        }
                     }
                 }
             );
