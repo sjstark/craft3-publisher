@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.1.0 - 2022-03-30
 ### Fixed
 - Fixed a deprecation error for craft 3.7
+- Fixed the entry expire and publishing workflow (previously a draft save would also invalidate the cache)
 
 ### Changed
 - Show the side panel when editing drafts too (previously it worked only on entry edit view)
