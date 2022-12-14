@@ -1,6 +1,7 @@
 {% import "_includes/forms" as forms %}
 {% set pendingEntries = craft.publisherEntries.getPendingEntries(entry.id) %}
 {% set drafts = craft.entries.draftOf(entry.id).siteId(entry.site.id).all %}
+{% set revisions = craft.entries.revisionOf(entry.id).siteId(entry.site.id).all %}
 {% set canPublishDraft = currentUser.can('publishEntries'~permissionSuffix) %}
 {% set isVersion = className(entry) == 'craft\\models\\EntryVersion' %}
 
@@ -36,12 +37,27 @@
             <h4>{{ 'Schedule a publish date'|t('publisher') }}</h4>
         </div>
         <div class="field">
-            <div class="heading"><label>{{ 'Draft'|t('publisher') }}</label></div>
+            <div class="heading"><label>{{ 'Draft or Revision'|t('publisher') }}</label></div>
             <div class="input">
                 <div class="select">
-                    <select name="publisher_draftId">
+                    <select name="publisher_versionId">
                         {% for draft in drafts %}
-                            <option value="{{ draft.draftId }}">{{ draft.draftName }}</option>
+                            <option value="draft-{{ draft.draftId }}">{{ draft.draftName }}</option>
+                        {% endfor %}
+                        {% for revision in revisions %}
+                            <option value="revision-{{ revision.revisionId }}">
+                                {% if entry.currentRevision().revisionId == revision.revisionId %}
+                                    {{ 'Current Revision' }}
+                                {% else %}
+                                    {{ revision.getRevisionLabel() }}
+                                {% endif %}
+                                    {{ creator ? 'Saved {timestamp} by {creator}'|t('app', {
+                                        timestamp: revision.dateCreated|timestamp('short', withPreposition=true),
+                                        creator: creator.name,
+                                    }) : 'Saved {timestamp}'|t('app', {
+                                        timestamp: revision.dateCreated|timestamp('short', withPreposition=true),
+                                    }) }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>

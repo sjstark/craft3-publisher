@@ -37,7 +37,18 @@ class EntriesController extends Controller
     {
         $this->requirePostRequest();
 
-        $draftId = Craft::$app->request->post('publisher_draftId');
+        $versionId = Craft::$app->request->post('publisher_versionId');
+
+        list($type, $tempId) = explode($versionId, '-');
+
+        if ( $type == 'draft' ) {
+            $draftId = $tempId;
+        } else {
+            $revisionId = $tempId;
+        }
+
+
+        // $draftId = Craft::$app->request->post('publisher_draftId');
         $publishAt = Craft::$app->request->post('publisher_publishAt');
         $siteId = Craft::$app->request->post('publisher_sourceSiteId');
 

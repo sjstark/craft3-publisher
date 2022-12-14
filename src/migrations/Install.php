@@ -29,15 +29,16 @@ class Install extends Migration
             $this->createTable(
                 '{{%entrypublishes}}',
                 [
-                    'id'             => $this->integer()->notNull(),
-                    'sourceId'       => $this->integer()->notNull(),
-                    'sourceSiteId'   => $this->integer(),
-                    'publishDraftId' => $this->integer(),
-                    'publishAt'      => $this->dateTime()->notNull(),
-                    'expire'         => $this->boolean()->defaultValue(false),
-                    'dateCreated'    => $this->dateTime()->notNull(),
-                    'dateUpdated'    => $this->dateTime()->notNull(),
-                    'uid'            => $this->uid(),
+                    'id'                => $this->integer()->notNull(),
+                    'sourceId'          => $this->integer()->notNull(),
+                    'sourceSiteId'      => $this->integer(),
+                    'publishDraftId'    => $this->integer(),
+                    'publishRevisionId' => $this->integer(),
+                    'publishAt'         => $this->dateTime()->notNull(),
+                    'expire'            => $this->boolean()->defaultValue(false),
+                    'dateCreated'       => $this->dateTime()->notNull(),
+                    'dateUpdated'       => $this->dateTime()->notNull(),
+                    'uid'               => $this->uid(),
                     'PRIMARY KEY([[id]])',
                 ]
             );
@@ -51,6 +52,15 @@ class Install extends Migration
                 '{{%entrypublishes}}',
                 ['publishDraftId'],
                 '{{%drafts}}',
+                ['id'],
+                'CASCADE',
+                'CASCADE'
+            );
+            $this->addForeignKey(
+                null,
+                '{{%entrypublishes}}',
+                ['publishRevisionId'],
+                '{{%revisions}}',
                 ['id'],
                 'CASCADE',
                 'CASCADE'
