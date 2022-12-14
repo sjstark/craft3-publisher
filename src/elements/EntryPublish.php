@@ -40,6 +40,11 @@ class EntryPublish extends Element
     public $publishDraftId;
 
     /**
+     * @var int
+     */
+    public $publishRevisionId;
+
+    /**
      * @var \DateTime
      */
     public $publishAt;
@@ -105,7 +110,7 @@ class EntryPublish extends Element
     public function rules(): array
     {
         $rules = parent::rules();
-        $rules[] = [['sourceId', 'sourceSiteId', 'publishDraftId'], 'number', 'integerOnly' => true];
+        $rules[] = [['sourceId', 'sourceSiteId', 'publishDraftId', 'publishRevisionId'], 'number', 'integerOnly' => true];
         $rules[] = [['publishAt'], DateTimeValidator::class];
         $rules[] = [['expire'], BooleanValidator::class];
 
@@ -145,6 +150,22 @@ class EntryPublish extends Element
         }
 
         return $draft;
+    }
+
+    /**
+     * Returns the entry revision.
+     *
+     * @return Entry|null
+     */
+    public function getRevision(): ?Entry
+    {
+
+        $revision = Entry::find()
+            ->revisionId($this->publishRevisionId)
+            ->siteId($this->sourceSiteId)
+            ->one();
+
+        return $revision;
     }
 
     /**

@@ -17,7 +17,7 @@
             </div>
 
             {% for pendingEntry in pendingEntries %}
-                {% set title = pendingEntry.draft ? pendingEntry.draft.draftName : pendingEntry.entry.title %}
+                {% set title = pendingEntry.draft ? pendingEntry.draft.draftName : (pendingEntry.revision ? pendingEntry.revision.getRevisionLabel() : pendingEntry.entry.title) %}
                 <div class="data">
                     <h5>{{ title }}{{ pendingEntry.expire ? ' ('~'Expires'|t('publisher')~')' }}</h5>
                     <div class="value">
@@ -31,7 +31,7 @@
     </div>
 </div>
 
-{% if drafts|length > 0 and canPublishDraft %}
+{% if (drafts|length > 0 or revisions|length > 1) and canPublishDraft %}
     <div class="meta" style="padding-top: 14px; padding-bottom: 14px;">
         <div class="data">
             <h4>{{ 'Schedule a publish date'|t('publisher') }}</h4>
@@ -42,10 +42,10 @@
                 <div class="select">
                     <select name="publisher_versionId">
                         {% for draft in drafts %}
-                            <option value="draft-{{ draft.draftId }}">{{ draft.draftName }}</option>
+                            <option value="draft_{{ draft.draftId }}">{{ draft.draftName }}</option>
                         {% endfor %}
                         {% for revision in revisions %}
-                            <option value="revision-{{ revision.revisionId }}">
+                            <option value="revision_{{ revision.revisionId }}">
                                 {% if entry.currentRevision().revisionId == revision.revisionId %}
                                     {{ 'Current Revision' }}
                                 {% else %}

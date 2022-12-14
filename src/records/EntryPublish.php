@@ -21,6 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property int       $sourceId
  * @property int       $sourceSiteId
  * @property int       $publishDraftId
+ * @property int       $publishRevisionId
  * @property bool      $expire
  * @property \DateTime $publishAt
  */
@@ -62,5 +63,15 @@ class EntryPublish extends ActiveRecord
     public function getDraft(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'publishDraftId']);
+    }
+
+    /**
+     * Returns the entry revision.
+     *
+     * @return ActiveQueryInterface
+     */
+    public function getRevision(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'publishRevisionId']);
     }
 }

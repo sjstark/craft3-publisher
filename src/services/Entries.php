@@ -56,11 +56,14 @@ class Entries extends Component
         foreach ($publishEntries as $entryPublish) {
             $entry = $entryPublish->getEntry();
             $draft = $entryPublish->getDraft();
+            $revision = $entryPublish->getRevision();
 
             Craft::$app->elements->deleteElement($entryPublish, true);
 
             if ($draft !== null) {
                 Craft::$app->getDrafts()->applyDraft($draft);
+            } elseif ($revision !== null) {
+                Craft::$app->getRevisions()->revertToRevision($revision, $revision->authorId);
             } elseif ($entry !== null) {
                 try {
                     Craft::$app->elements->saveElement($entry);
@@ -125,6 +128,7 @@ class Entries extends Component
         $record->sourceId = $model->sourceId;
         $record->sourceSiteId = $model->sourceSiteId;
         $record->publishDraftId = $model->publishDraftId;
+        $record->publishRevisionId = $model->publishRevisionId;
         $record->publishAt = $model->publishAt;
         $record->expire = $model->expire;
 
